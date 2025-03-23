@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Lobby</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #messages {
+            width: 80%;
+            max-width: 500px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin: 10px auto;
+            padding: 10px;
+            text-align: left;
+            background: #f9f9f9;
+        }
+        .message {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        form {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Let's Chat!</h1>
+
+    <div id="messages"></div>
+
+    <form id="form">
+        <input type="text" id="messageInput" name="message" placeholder="Type a message..." required />
+        <button type="submit">Send</button>
+    </form>
+
+    <script type="text/javascript">
+        let url = `ws://${window.location.host}/ws/socket-server/`;
+        const chatSocket = new WebSocket(url);
+    
+        chatSocket.onmessage = function(e) {
+            let data = JSON.parse(e.data);
+            let messages = document.getElementById('messages');
+            messages.insertAdjacentHTML('beforeend', `<div><p>${data.message}</p></div>`);
+        };
+    
+        document.getElementById('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            let message = e.target.messageInput.value.trim();
+            if (message !== "") {
+                chatSocket.send(JSON.stringify({ 'message': message }));
+                e.target.messageInput.value = ""; 
+            }
+        });
+    </script>
+    
+</body>
+</html>
